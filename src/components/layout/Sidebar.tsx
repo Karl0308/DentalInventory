@@ -2,11 +2,12 @@ import { NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Package, PackagePlus, ClipboardList,
   Bell, BarChart3, ShieldCheck, Truck, Settings,
-  Cross, ChevronRight
+  Cross, Tag, MapPin, ListChecks
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { useAlerts } from '@/hooks/useAlerts'
+import { useAuth } from '@/context/AuthContext'
 import { Separator } from '@/components/ui/separator'
 
 interface NavItem {
@@ -23,6 +24,7 @@ interface NavGroup {
 
 export default function Sidebar() {
   const { activeCount } = useAlerts()
+  const { user } = useAuth()
   const location = useLocation()
 
   const navGroups: NavGroup[] = [
@@ -50,8 +52,11 @@ export default function Sidebar() {
     {
       title: 'MANAGEMENT',
       items: [
-        { label: 'Audit Log', to: '/audit-log', icon: <ShieldCheck className="h-4 w-4" /> },
+        { label: 'Items', to: '/management/items', icon: <ListChecks className="h-4 w-4" /> },
+        { label: 'Categories', to: '/management/categories', icon: <Tag className="h-4 w-4" /> },
+        { label: 'Locations', to: '/management/locations', icon: <MapPin className="h-4 w-4" /> },
         { label: 'Suppliers', to: '/suppliers', icon: <Truck className="h-4 w-4" /> },
+        { label: 'Audit Log', to: '/audit-log', icon: <ShieldCheck className="h-4 w-4" /> },
       ],
     },
   ]
@@ -125,13 +130,12 @@ export default function Sidebar() {
       <Separator />
       <div className="flex items-center gap-3 px-4 py-4">
         <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-xs">
-          AR
+          {user?.initials ?? '?'}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-foreground truncate">Dr. Ana Reyes</p>
-          <p className="text-xs text-muted-foreground">Admin</p>
+          <p className="text-sm font-medium text-foreground truncate">{user?.name ?? '—'}</p>
+          <p className="text-xs text-muted-foreground">{user?.role ?? ''}</p>
         </div>
-        <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </div>
     </aside>
   )

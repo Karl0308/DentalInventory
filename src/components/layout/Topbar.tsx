@@ -15,6 +15,9 @@ const pageTitles: Record<string, string> = {
   '/audit-log': 'Audit Log',
   '/suppliers': 'Suppliers',
   '/settings': 'Settings',
+  '/management/items': 'Manage Items',
+  '/management/categories': 'Manage Categories',
+  '/management/locations': 'Manage Locations',
 }
 
 export default function Topbar() {

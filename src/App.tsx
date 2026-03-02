@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from '@/context/AuthContext'
+import { ManagementProvider } from '@/context/ManagementContext'
 import AppLayout from '@/components/layout/AppLayout'
 import Login from '@/pages/Login'
 import Dashboard from '@/pages/Dashboard'
@@ -12,6 +13,9 @@ import Reports from '@/pages/Reports'
 import AuditLog from '@/pages/AuditLog'
 import Suppliers from '@/pages/Suppliers'
 import Settings from '@/pages/Settings'
+import ManageItems from '@/pages/management/ManageItems'
+import ManageCategories from '@/pages/management/ManageCategories'
+import ManageLocations from '@/pages/management/ManageLocations'
 
 function AppRoutes() {
   const { user } = useAuth()
@@ -32,6 +36,9 @@ function AppRoutes() {
         <Route path="audit-log" element={<AuditLog />} />
         <Route path="suppliers" element={<Suppliers />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="management/items" element={<ManageItems />} />
+        <Route path="management/categories" element={<ManageCategories />} />
+        <Route path="management/locations" element={<ManageLocations />} />
       </Route>
     </Routes>
   )
@@ -41,7 +48,9 @@ export default function App() {
   return (
     <BrowserRouter basename="/DentalInventory">
       <AuthProvider>
-        <AppRoutes />
+        <ManagementProvider>
+          <AppRoutes />
+        </ManagementProvider>
       </AuthProvider>
     </BrowserRouter>
   )
