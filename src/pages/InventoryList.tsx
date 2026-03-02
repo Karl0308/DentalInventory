@@ -1,4 +1,4 @@
-
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useInventory } from '@/hooks/useInventory'
 import { Input } from '@/components/ui/input'
@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import StockStatusBadge from '@/components/inventory/StockStatusBadge'
-import { Search, Package, PackagePlus } from 'lucide-react'
+import { AddItemDialog } from '@/components/inventory/AddItemDialog'
+import { Search, Package, PackagePlus, Plus } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { mockBatches } from '@/data/mockBatches'
 import { getDaysUntilExpiry, formatDisplayDate } from '@/lib/dateUtils'
@@ -16,8 +17,9 @@ import { ItemCategory, StockStatus } from '@/types/inventory.types'
 import { STORAGE_LOCATIONS } from '@/lib/constants'
 
 export default function InventoryList() {
-  const { items, filters, setFilters } = useInventory()
+  const { items, filters, setFilters, addItem } = useInventory()
   const navigate = useNavigate()
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const getNearestExpiry = (itemId: string) => {
     const batches = mockBatches.filter(b => b.itemId === itemId && b.expiryDate)
@@ -33,10 +35,16 @@ export default function InventoryList() {
           <h2 className="text-2xl font-bold">Inventory List</h2>
           <p className="text-sm text-muted-foreground mt-1">{items.length} items found</p>
         </div>
-        <Button onClick={() => navigate('/receive-stock')} className="gap-2">
-          <PackagePlus className="h-4 w-4" />
-          Receive Stock
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => navigate('/receive-stock')} className="gap-2">
+            <PackagePlus className="h-4 w-4" />
+            Receive Stock
+          </Button>
+          <Button onClick={() => setDialogOpen(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Item
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -187,6 +195,12 @@ export default function InventoryList() {
           </div>
         </CardContent>
       </Card>
+
+      <AddItemDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onAdd={addItem}
+      />
     </div>
   )
 }
