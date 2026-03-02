@@ -7,7 +7,6 @@ import {
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { useAlerts } from '@/hooks/useAlerts'
-import { useAuth } from '@/context/AuthContext'
 import { Separator } from '@/components/ui/separator'
 
 interface NavItem {
@@ -22,9 +21,12 @@ interface NavGroup {
   items: NavItem[]
 }
 
-export default function Sidebar() {
+interface SidebarProps {
+  collapsed: boolean
+}
+
+export default function Sidebar({ collapsed }: SidebarProps) {
   const { activeCount } = useAlerts()
-  const { user } = useAuth()
   const location = useLocation()
 
   const navGroups: NavGroup[] = [
@@ -67,43 +69,68 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-64 h-full bg-white border-r border-border flex flex-col">
+    <aside className={cn(
+      'h-full bg-white border-r border-border flex flex-col transition-all duration-300 shrink-0',
+      collapsed ? 'w-16' : 'w-64'
+    )}>
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-5 h-16 border-b border-border">
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+      <div className={cn(
+        'flex items-center h-16 border-b border-border',
+        collapsed ? 'justify-center' : 'gap-2.5 px-5'
+      )}>
+        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
           <Cross className="h-4 w-4 text-white" />
         </div>
-        <div>
-          <p className="font-bold text-sm text-foreground leading-none">DentaStock</p>
-          <p className="text-xs text-muted-foreground mt-0.5">Inventory System</p>
-        </div>
+        {!collapsed && (
+          <div>
+            <p className="font-bold text-sm text-foreground leading-none">DentaStock</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Inventory System</p>
+          </div>
+        )}
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3">
-        {navGroups.map((group) => (
-          <div key={group.title} className="mb-5">
-            <p className="text-[10px] font-semibold text-muted-foreground tracking-widest px-3 mb-1.5">
-              {group.title}
-            </p>
+      <nav className="flex-1 overflow-y-auto py-4 px-2">
+        {navGroups.map((group, gi) => (
+          <div key={group.title} className="mb-4">
+            {!collapsed ? (
+              <p className="text-[10px] font-semibold text-muted-foreground tracking-widest px-3 mb-1.5">
+                {group.title}
+              </p>
+            ) : (
+              gi > 0 && <Separator className="mb-2 mx-1" />
+            )}
             {group.items.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 end={item.to === '/'}
+                title={collapsed ? item.label : undefined}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors mb-0.5',
+                  'flex items-center rounded-md text-sm font-medium transition-colors mb-0.5',
+                  collapsed ? 'justify-center py-2.5 px-0' : 'gap-3 px-3 py-2',
                   isActive(item.to)
                     ? 'bg-primary/10 text-primary'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 )}
               >
-                {item.icon}
-                <span className="flex-1">{item.label}</span>
-                {item.badge !== undefined && item.badge > 0 && (
-                  <Badge variant="critical" className="h-5 min-w-5 text-[10px] px-1.5">
-                    {item.badge}
-                  </Badge>
+                <span className="relative shrink-0">
+                  {item.icon}
+                  {collapsed && item.badge !== undefined && item.badge > 0 && (
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white text-[8px] rounded-full flex items-center justify-center font-bold">
+                      {item.badge}
+                    </span>
+                  )}
+                </span>
+                {!collapsed && (
+                  <>
+                    <span className="flex-1">{item.label}</span>
+                    {item.badge !== undefined && item.badge > 0 && (
+                      <Badge variant="critical" className="h-5 min-w-5 text-[10px] px-1.5">
+                        {item.badge}
+                      </Badge>
+                    )}
+                  </>
                 )}
               </NavLink>
             ))}
@@ -114,29 +141,19 @@ export default function Sidebar() {
 
         <NavLink
           to="/settings"
+          title={collapsed ? 'Settings' : undefined}
           className={cn(
-            'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+            'flex items-center rounded-md text-sm font-medium transition-colors',
+            collapsed ? 'justify-center py-2.5 px-0' : 'gap-3 px-3 py-2',
             isActive('/settings')
               ? 'bg-primary/10 text-primary'
               : 'text-muted-foreground hover:bg-muted hover:text-foreground'
           )}
         >
-          <Settings className="h-4 w-4" />
-          <span>Settings</span>
+          <Settings className="h-4 w-4 shrink-0" />
+          {!collapsed && <span>Settings</span>}
         </NavLink>
       </nav>
-
-      {/* User */}
-      <Separator />
-      <div className="flex items-center gap-3 px-4 py-4">
-        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-xs">
-          {user?.initials ?? '?'}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-foreground truncate">{user?.name ?? '—'}</p>
-          <p className="text-xs text-muted-foreground">{user?.role ?? ''}</p>
-        </div>
-      </div>
     </aside>
   )
 }

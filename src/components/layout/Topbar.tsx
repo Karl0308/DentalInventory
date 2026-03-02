@@ -1,4 +1,4 @@
-import { Bell, Search, LogOut } from 'lucide-react'
+import { Bell, Search, LogOut, Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAlerts } from '@/hooks/useAlerts'
@@ -20,7 +20,12 @@ const pageTitles: Record<string, string> = {
   '/management/locations': 'Manage Locations',
 }
 
-export default function Topbar() {
+interface TopbarProps {
+  collapsed: boolean
+  onToggle: () => void
+}
+
+export default function Topbar({ onToggle }: TopbarProps) {
   const { activeCount } = useAlerts()
   const { user, logout } = useAuth()
   const location = useLocation()
@@ -36,10 +41,15 @@ export default function Topbar() {
   }
 
   return (
-    <header className="h-16 bg-white border-b border-border flex items-center justify-between px-6 shrink-0">
-      <h1 className="text-lg font-semibold text-foreground">{title}</h1>
-
+    <header className="h-16 bg-white border-b border-border flex items-center justify-between px-4 shrink-0">
       <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon" onClick={onToggle}>
+          <Menu className="h-5 w-5" />
+        </Button>
+        <h1 className="text-lg font-semibold text-foreground">{title}</h1>
+      </div>
+
+      <div className="flex items-center gap-2">
         <div className="relative hidden md:block">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Search inventory..." className="pl-8 w-56 h-9 text-sm" />
@@ -59,23 +69,14 @@ export default function Topbar() {
           )}
         </Button>
 
-        {/* User avatar + name */}
-        <div className="flex items-center gap-2 ml-1">
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-xs">
-            {user?.initials ?? '?'}
-          </div>
-          <div className="hidden md:block text-sm leading-tight">
-            <p className="font-medium text-foreground">{user?.name}</p>
-            <p className="text-xs text-muted-foreground">{user?.role}</p>
-          </div>
+        <div
+          className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-xs cursor-default"
+          title={`${user?.name} — ${user?.role}`}
+        >
+          {user?.initials ?? '?'}
         </div>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleLogout}
-          title="Sign out"
-        >
+        <Button variant="ghost" size="icon" onClick={handleLogout} title="Sign out">
           <LogOut className="h-4 w-4 text-muted-foreground" />
         </Button>
       </div>
