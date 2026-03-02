@@ -1,0 +1,32 @@
+import { useState, useMemo } from 'react'
+import { mockItems } from '@/data/mockItems'
+import { ItemCategory, StockStatus } from '@/types/inventory.types'
+
+interface FilterState {
+  search: string
+  category: ItemCategory | 'All'
+  status: StockStatus | 'All'
+  location: string
+}
+
+export function useInventory() {
+  const [filters, setFilters] = useState<FilterState>({
+    search: '',
+    category: 'All',
+    status: 'All',
+    location: 'All',
+  })
+
+  const filteredItems = useMemo(() => {
+    return mockItems.filter(item => {
+      const matchesSearch = item.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+        item.subcategory.toLowerCase().includes(filters.search.toLowerCase())
+      const matchesCategory = filters.category === 'All' || item.category === filters.category
+      const matchesStatus = filters.status === 'All' || item.status === filters.status
+      const matchesLocation = filters.location === 'All' || item.storageLocation === filters.location
+      return matchesSearch && matchesCategory && matchesStatus && matchesLocation
+    })
+  }, [filters])
+
+  return { items: filteredItems, filters, setFilters, allItems: mockItems }
+}
